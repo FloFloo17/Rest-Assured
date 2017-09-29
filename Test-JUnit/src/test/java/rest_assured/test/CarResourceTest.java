@@ -82,6 +82,14 @@ public class CarResourceTest extends ConfigureRestAssured {
 			.put("Error/car/2")
 		.then()
 			.statusCode(400);
+		// Test 404 ----------------------------------------
+		given()
+			.contentType("application/json")
+			.body(carJsonUpdate)
+		.when()
+			.put("/car/0")
+		.then()
+			.statusCode(404);
 	}
 	
 	@Test
@@ -168,12 +176,6 @@ public class CarResourceTest extends ConfigureRestAssured {
 				+ "\"nom\": \"Update nom test Put Car\","
 				+ "\"driver_id\": \"\""
 				+ "}";
-		
-		given()
-			.contentType("application/json")
-			.body(carJson)
-		.when()
-			.post("/car");
 		
 		// Test 201 ----------------------------------------
 		given()
