@@ -14,14 +14,16 @@ public class CarResourceTest extends ConfigureRestAssured {
 		String carJson = "{"
 				+ "\"id\": 1,"
 				+ "\"nom\": \"nom test Get Car Id\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		
 		given()
 			.contentType("application/json")
 			.body(carJson)
 		.when()
-			.post("/car");
+			.post("/car")
+		.then()
+			.statusCode(201);
 		
 		// Test 200 ----------------------------------------
 		when()
@@ -30,13 +32,13 @@ public class CarResourceTest extends ConfigureRestAssured {
 			.statusCode(200)
 			.body("id", equalTo(1))
 			.body("nom", equalTo("nom test Get Car Id"))
-			.body("driver_id", equalTo(null));
+			.body("driver", equalTo(null));
 		
 		// Test 400 ----------------------------------------
 		when()
 			.get("Error/car/1")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 		
 		// Test 404 ----------------------------------------
 		when()
@@ -51,12 +53,12 @@ public class CarResourceTest extends ConfigureRestAssured {
 		String carJson = "{"
 				+ "\"id\": 2,"
 				+ "\"nom\": \"nom test Put Car Id\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		String carJsonUpdate = "{"
 				+ "\"id\": 2," // tester le changement d'id ?
 				+ "\"nom\": \"Update nom test Put Car Id\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		
 		given()
@@ -81,7 +83,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 		.when()
 			.put("Error/car/2")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 		// Test 404 ----------------------------------------
 		given()
 			.contentType("application/json")
@@ -98,7 +100,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 		String carJson = "{"
 				+ "\"id\": 3,"
 				+ "\"nom\": \"nom test Delete Car Id\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		
 		given()
@@ -117,7 +119,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 		when()
 			.delete("Error/car/3")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 		
 		// Test 404 ----------------------------------------
 		when()
@@ -132,7 +134,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 		String carJson = "{"
 				+ "\"id\": 4,"
 				+ "\"nom\": \"nom test Post Car\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		
 		// Test 201 ----------------------------------------
@@ -145,13 +147,13 @@ public class CarResourceTest extends ConfigureRestAssured {
 			.statusCode(201)
 			.body("id", equalTo(4))
 			.body("nom", equalTo("nom test Post Car"))
-			.body("driver_id", equalTo(null));
+			.body("driver", equalTo(null));
 		
 		// Test 400 ----------------------------------------
 		when()
 			.put("Error/car/4")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 
 		// Test 409 ----------------------------------------
 		given()
@@ -169,12 +171,12 @@ public class CarResourceTest extends ConfigureRestAssured {
 		String carJson = "{"
 				+ "\"id\": 5,"
 				+ "\"nom\": \"nom test Put Car\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		String carJsonUpdate = "{"
 				+ "\"id\": 5," // tester le changement d'id ?
 				+ "\"nom\": \"Update nom test Put Car\","
-				+ "\"driver_id\": \"\""
+				+ "\"driver\": \"\""
 				+ "}";
 		
 		// Test 201 ----------------------------------------
@@ -187,7 +189,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 			.statusCode(201)
 			.body("id", equalTo(5))
 			.body("nom", equalTo("nom test Put Car"))
-			.body("driver_id", equalTo(null));
+			.body("driver", equalTo(null));
 		
 		// Test 200 ----------------------------------------
 		given()
@@ -199,7 +201,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 			.statusCode(200)
 			.body("id", equalTo(5))
 			.body("nom", equalTo("Update nom test Put Car"))
-			.body("driver_id", equalTo(null));
+			.body("driver", equalTo(null));
 		
 		// Test 400 ----------------------------------------
 		given()
@@ -208,7 +210,7 @@ public class CarResourceTest extends ConfigureRestAssured {
 		.when()
 			.put("Error/car")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 	}
 	
 	@Test
@@ -223,22 +225,22 @@ public class CarResourceTest extends ConfigureRestAssured {
 		when()
 			.get("Error/car")
 		.then()
-			.statusCode(400);
+			.statusCode(404);
 	}
 	
-	@Test
-	public void testGetCountCar() {
-		// Test 200 ----------------------------------------
-		when()
-			.get("/car.count")
-		.then()
-			.statusCode(200);
-		
-		// Test 400 ----------------------------------------
-		when()
-			.get("Error/car.count")
-		.then()
-			.statusCode(400);
-	}
+//	@Test
+//	public void testGetCountCar() {
+//		// Test 200 ----------------------------------------
+//		when()
+//			.get("/car.count")
+//		.then()
+//			.statusCode(200);
+//		
+//		// Test 400 ----------------------------------------
+//		when()
+//			.get("Error/car.count")
+//		.then()
+//			.statusCode(404);
+//	}
 
 }

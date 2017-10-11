@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  id="Test-JUnit" version="3.0">
+
+	<display-name>Test-JUnit</display-name>
+  
+	<!-- JAX-RS 1 with JERSEY 1.x IMPLEMENTATION -->
+	<servlet>
+		<servlet-name>Jersey</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<!-- Project packages to be scanned to find REST controller classes -->
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<!-- Define here the package where your REST controller classes are located -->
+			<param-value>org.demo.web.rest.jaxrs</param-value> 
+		</init-param>
+		<init-param>
+			<!-- To make Jersey support JSON/object mapping -->
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Jersey</servlet-name>
+		<url-pattern>/api/v1/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Servlet filter to remove HTTP caching for REST resources -->
+	<filter>
+		<filter-name>CacheFilter</filter-name>
+		<filter-class>org.demo.web.rest.commons.CacheFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CacheFilter</filter-name>
+		<url-pattern>/api/v1/*</url-pattern>
+	</filter-mapping>
+
+</web-app>
