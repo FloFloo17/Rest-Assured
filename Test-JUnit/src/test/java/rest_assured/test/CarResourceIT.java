@@ -11,13 +11,13 @@ public class CarResourceIT extends ConfigureRestAssured {
 	String carJson = "{"
 			+ "\"id\": 123,"
 			+ "\"nom\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
-			+ "\"driver\": \"\""
+			+ "\"driver\": null"
 			+ "}";
 	
 	String carJsonUpdate = "{"
-			+ "\"id\": 2," // tester le changement d'id ?
+			+ "\"id\": 123," // tester le changement d'id ?
 			+ "\"nom\": \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\","
-			+ "\"driver\": \"\""
+			+ "\"driver\": null"
 			+ "}";
 	
 	long initialCount = 0;
@@ -83,8 +83,11 @@ public class CarResourceIT extends ConfigureRestAssured {
 			.body("driver", equalTo(null));
 		
 		// Test 400 ----------------------------------------
-		when()
-			.put("Error/car/4")
+		given()
+			.contentType("application/json")
+			.body(carJson)
+		.when()
+			.post("Error/car")
 		.then()
 			.statusCode(400);
 
@@ -154,19 +157,19 @@ public class CarResourceIT extends ConfigureRestAssured {
 	private void testDeleteCarId() {
 		// Test 204 ----------------------------------------
 		when()
-			.delete("/car/3")
+			.delete("/car/123")
 		.then()
 			.statusCode(204);
 		
 		// Test 400 ----------------------------------------
 		when()
-			.delete("Error/car/3")
+			.delete("Error/car/123")
 		.then()
 			.statusCode(400);
 		
 		// Test 404 ----------------------------------------
 		when()
-			.delete("/car/3")
+			.delete("/car/123")
 		.then()
 			.statusCode(404);
 	}
