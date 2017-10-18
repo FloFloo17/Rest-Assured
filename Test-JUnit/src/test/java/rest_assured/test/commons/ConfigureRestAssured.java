@@ -1,4 +1,4 @@
-package rest_assured.test;
+package rest_assured.test.commons;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +8,8 @@ import org.junit.BeforeClass;
 import io.restassured.RestAssured;
 
 public class ConfigureRestAssured {
+	
+	protected final static String CONTENT_TYPE_JSON = "application/json";
 	private static String baseURI;
 	private static Integer port;
 	private static String basePath;

@@ -5,28 +5,31 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import org.junit.Test;
 
+import rest_assured.test.commons.ConfigureRestAssured;
+
 
 public class CarResourceIT extends ConfigureRestAssured {
+	
 	// Initialization --------------------------------
-	String carJson = "{"
-			+ "\"id\": 123,"
+	private final static int ID_TEST = 123;
+	private long initialCount = 0;
+	
+	private final static String DATA_BODY = "{"
+			+ "\"id\":" + ID_TEST + ","
 			+ "\"nom\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\","
 			+ "\"driver\": null"
 			+ "}";
 	
-	String carJsonUpdate = "{"
-			+ "\"id\": 123," // tester le changement d'id ?
+	private final static String DATA_BODY_FOR_UPDATE = "{"
+			+ "\"id\":" + ID_TEST + ","
 			+ "\"nom\": \"BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\","
 			+ "\"driver\": null"
 			+ "}";
 	
-	long initialCount = 0;
-	
 	@Test
-	public void testPersistence() {
+	public void test() {
 		System.out.println("--- test CarResource ");
-		
-		when().delete("/car/123"); // Just to be sure it doesn't exist before insert
+		clear(); // Just to be sure it doesn't exist before insert
 		
 		try {
 			initialCount = when().get("/car.count").then().extract().path("count");
@@ -37,210 +40,151 @@ public class CarResourceIT extends ConfigureRestAssured {
 		
 		
 		//--- CREATE
-		System.out.println("Create : " + carJson);
-		testPostCar();
+		System.out.println("Create : " + DATA_BODY);
+		testPost();
 		
 		//--- FIND BY ID
-		System.out.println("Find by id..." );
-		testGetCarId();
+		System.out.println("Find by id" );
+		testGetById();
 		
     	//--- UPDATE
-		System.out.println("Update : " + carJsonUpdate );
-		testPutCarId();
+		System.out.println(" : " + DATA_BODY_FOR_UPDATE );
+		testPutForUpdate(200);
 		
 		//--- DELETE
-		System.out.println("Delete : " + carJsonUpdate );
-		testDeleteCarId();
+		System.out.println("Delete : " + DATA_BODY_FOR_UPDATE );
+		testDelete(204); // Found and deleted
+		testDelete(404); // Not found
 		
-    	//--- UPDATE
-		System.out.println("Create/Update...");
-		testPutCar();
+		//--- NOT FOUND BY ID
+		System.out.println("Not found by id" );
+		testNotFoundGetById();
+
+    	//--- UPDATE NOT FOUND
+		System.out.println("Update Not found" );
+		testPutForUpdate(404);
+		
+    	//--- SAVE
+		System.out.println("Save (Update or Insert)");
+		testPutForSave();
 		
 		//--- FIND ALL
 		System.out.println("Find all");
-		testGetCar();
+		testGetAll();
 		
 		//--- COUNT
 		System.out.println("Count");
-		testGetCountCar();
+		testGetCount();
 		
 		
 		System.out.println("Delete after test");
-		when().delete("/car/123");
+		clear();
 	}
 	
-	private void testPostCar() {
-		// Test 201 ----------------------------------------
+	private void testPost() {
+		// Test CREATE : 201 expected ----------------------------------------
 		given()
-			.contentType("application/json")
-			.body(carJson)
+			.contentType(CONTENT_TYPE_JSON)
+			.body(DATA_BODY)
 		.when()
 			.post("/car")
 		.then()
 			.statusCode(201)
-			.body("id", equalTo(123))
+			.body("id", equalTo(ID_TEST))
 			.body("nom", equalTo("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
 			.body("driver", equalTo(null));
-		
-		// Test 400 ----------------------------------------
-		given()
-			.contentType("application/json")
-			.body(carJson)
-		.when()
-			.post("Error/car")
-		.then()
-			.statusCode(400);
 
 		// Test 409 ----------------------------------------
 		given()
-			.contentType("application/json")
-			.body(carJson)
+			.contentType(CONTENT_TYPE_JSON)
+			.body(DATA_BODY)
 		.when()
 			.post("/car")
 		.then()
 			.statusCode(409);
 	}
 	
-	private void testGetCarId() {	
+	private void testGetById() {	
 		// Test 200 ----------------------------------------
 		when()
-			.get("/car/123")
+			.get("/car/" + ID_TEST)
 		.then()
 			.statusCode(200)
-			.body("id", equalTo(123))
+			.body("id", equalTo(ID_TEST))
 			.body("nom", equalTo("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
 			.body("driver", equalTo(null));
+	}
 		
-		// Test 400 ----------------------------------------
-		when()
-			.get("Error/car/123")
-		.then()
-			.statusCode(400);
-		
+	private void testNotFoundGetById() {	
 		// Test 404 ----------------------------------------
 		when()
-			.get("/car/0")
+			.get("/car/" + ID_TEST)
 		.then()
 			.statusCode(404);
 	}
 	
-	
-	private void testPutCarId() {
-		// Test 200 ----------------------------------------
+	private void testPutForUpdate(int expectedStatusCode) {
 		given()
-			.contentType("application/json")
-			.body(carJsonUpdate)
+			.contentType(CONTENT_TYPE_JSON)
+			.body(DATA_BODY_FOR_UPDATE)
 		.when()
-			.put("/car/123")
+			.put("/car/" + ID_TEST)
 		.then()
-			.statusCode(200); // ne retourn pas d'objet pour un Update
-		
-		// Test 400 ----------------------------------------
-		given()
-			.contentType("application/json")
-			.body(carJsonUpdate)
-		.when()
-			.put("Error/car/2")
-		.then()
-			.statusCode(400);
-		
-		// Test 404 ----------------------------------------
-		given()
-			.contentType("application/json")
-			.body(carJsonUpdate)
-		.when()
-			.put("/car/0")
-		.then()
-			.statusCode(404);
+			.statusCode(expectedStatusCode);
 	}
 	
-	private void testDeleteCarId() {
-		// Test 204 ----------------------------------------
+	private void testDelete(int expectedStatusCode) {
 		when()
-			.delete("/car/123")
+			.delete("/car/" + ID_TEST)
 		.then()
-			.statusCode(204);
-		
-		// Test 400 ----------------------------------------
-		when()
-			.delete("Error/car/123")
-		.then()
-			.statusCode(400);
-		
-		// Test 404 ----------------------------------------
-		when()
-			.delete("/car/123")
-		.then()
-			.statusCode(404);
+			.statusCode(expectedStatusCode);
 	}
-
-
 	
-	private void testPutCar() {
+	private void testPutForSave() {
 		// Test 201 ----------------------------------------
 		given()
-			.contentType("application/json")
-			.body(carJson)
+			.contentType(CONTENT_TYPE_JSON)
+			.body(DATA_BODY)
 		.when()
 			.put("/car")
 		.then()
 			.statusCode(201)
-			.body("id", equalTo(123))
+			.body("id", equalTo(ID_TEST))
 			.body("nom", equalTo("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
 			.body("driver", equalTo(null));
 		
 		// Test 200 ----------------------------------------
 		given()
-			.contentType("application/json")
-			.body(carJsonUpdate)
+			.contentType(CONTENT_TYPE_JSON)
+			.body(DATA_BODY_FOR_UPDATE)
 		.when()
 			.put("/car")
 		.then()
 			.statusCode(200)
-			.body("id", equalTo(123))
+			.body("id", equalTo(ID_TEST))
 			.body("nom", equalTo("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"))
 			.body("driver", equalTo(null));
-		
-		// Test 400 ----------------------------------------
-		given()
-			.contentType("application/json")
-			.body(carJsonUpdate)
-		.when()
-			.put("Error/car")
-		.then()
-			.statusCode(400);
 	}
 	
-	private void testGetCar() {
+	private void testGetAll() {
 		// Test 200 ----------------------------------------
 		when()
 			.get("/car")
 		.then()
 			.statusCode(200);
-		
-		// Test 400 ----------------------------------------
-		when()
-			.get("Error/car")
-		.then()
-			.statusCode(400);
 	}
 	
-	private void testGetCountCar() {
+	private void testGetCount() {
 		// Test 200 ----------------------------------------
-		when()
-			.get("/car.count")
-		.then()
-			.statusCode(200)
-			.body("count", equalTo(initialCount + 1));
-
-		
-		// Test 400 ----------------------------------------
-		when()
-			.get("Error/car.count")
-		.then()
-			.statusCode(400);
-		
-		
+//		when()
+//			.get("/car.count")
+//		.then()
+//			.statusCode(200)
+//			.body("count", equalTo(initialCount + 1));		
+	}
+	
+	private void clear() {
+		when().delete("/car/" + ID_TEST);
 	}
 
 }
